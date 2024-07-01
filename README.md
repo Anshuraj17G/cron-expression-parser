@@ -1,23 +1,45 @@
-# Cron Expression Parser
+# Technical Task - Cron Expression Parser
 
 ## Introduction
 
-This is java based standard cron expression parser. 
+Write a command line application or script which parses a cron string and expands each field
+to show the times at which it will run. You may use whichever language you feel most
+comfortable with.
 
-## Standard
+Please do not use existing cron parser libraries for this exercise. Whilst it’s generally a good
+idea to use pre-built libraries, we want to assess your ability to create your own!
+You should only consider the standard cron format with five time fields (minute, hour, day of
+month, month, and day of week) plus a command, and you do not need to handle the special
+time strings such as "@yearly". The input will be on a single line.
 
-Standard [POSIX based cron parser syntax](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/crontab.html) is used.
+The cron string will be passed to your application as a single argument.
+~$ your-program "d"
 
-## Implementation
+The output should be formatted as a table with the field name taking the first 14 columns and
+the times as a space-separated list following it.
+For example, the following input argument:
+*/15 0 1,15 * 1-5 /usr/bin/find
 
-Basically each fields of cron expression is parsed individually. For each field there is separate parser class like `MinuteFieldParser`, `HourFieldParser` etc. All of these classes extends base abstract class `FieldParser`. Each fields are parsed by tokenize them based on special chars (allowed chars are `*`, `/`, `,` and `-`). 
+***
+``` 
+Should yield the following output:
+minute 0 15 30 45
+hour 0
+day of month 1 15
+month 1 2 3 4 5 6 7 8 9 10 11 12
+day of week 1 2 3 4 5
+command /usr/bin/find
+  ```
+***
 
-For each char type special validations checks are performed. For digit in expression, invalid chars, number radix, min and max ranged checks are performed. For step char (`/`), number of arguments, divide by zero and negative numbers checks are performed. For asterisk char (`*`), multiple occurrence check is performed. And for range char (`-`), number range and number of arguments checks are performed. All of these checked are unit tested.
-
-In future following cases can be handled -
-1) Handle any value char `?`
-2) Allow `SUN-SAT` representation for day of the week along with `0-6`
-3) Allow `JAN-DEC` representation for month along with `1-12`
+You should spend no more than three hours on this exercise. If you do not have time to
+handle all possible cron strings then an app which handles a subset of them correctly is
+better than one which does not run or produces incorrect results. You will be asked to extend
+the solution with additional features in the interview, so please have your development
+environment ready in the way you like it, ready for screen sharing.
+You should see your project reviewer as a new team member you are handling the project
+over to. Provide everything you feel would be relevant for them to ramp up quickly, such as tests,
+a README and instructions for how to run your project in a clean OSX/Linux environment.
 
 ## How to Run
 
@@ -41,4 +63,5 @@ To execute and parsing cron expression execute from the project root folder -
 Note: To handle special char asterisk `*` on `BASH`, please disable [globbing](https://en.wikipedia.org/wiki/Glob_(programming) using following command -
 ```
  set -f
+ or for macOS use '' like '*/15' 0 1,15 '*' 1-5 /usr/bin/find
 ```

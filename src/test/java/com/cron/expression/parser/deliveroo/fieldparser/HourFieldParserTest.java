@@ -1,42 +1,41 @@
-package com.cron.parser.fieldparser;
+package com.cron.expression.parser.deliveroo.fieldparser;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
-public class DayOfWeekFieldParserTest {
+public class HourFieldParserTest {
     FieldParser fieldParser;
-    Set<Integer> valueSet;
+    List<Integer> valueList;
 
     @Before
     public void setup() {
-        fieldParser = new DayOfWeekFieldParser();
+        fieldParser = new HourFieldParser();
     }
 
     @Test
     public void validInput_correctMinAndMax_valueInRange() {
         assertEquals(0, fieldParser.getMin());
-        assertEquals(6, fieldParser.getMax());
+        assertEquals(23, fieldParser.getMax());
     }
 
     @Test
     public void validInput_onlyAsterisk_allValues() {
-        valueSet = new TreeSet<>();
+        valueList = new ArrayList<>();
         for(int i = fieldParser.getMin(); i <= fieldParser.getMax(); i++)
-            valueSet.add(i);
-        assertEquals(valueSet, fieldParser.parseField("*"));
+            valueList.add(i);
+        assertEquals(valueList, fieldParser.parseField("*"));
     }
 
     @Test
     public void validInput_onlyNumber_valueMatch() {
-        valueSet = new TreeSet<>(Collections.singletonList(5));
-        assertEquals(valueSet, fieldParser.parseField("5"));
+        valueList = Arrays.asList(5);
+        assertEquals(valueList, fieldParser.parseField("5"));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -45,65 +44,55 @@ public class DayOfWeekFieldParserTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void invalidInput_numberAboveMax_shouldThrowException() {
-        fieldParser.parseField("60");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     public void invalidInput_badNumberFormat_shouldThrowException() {
-        fieldParser.parseField("0A");
+        fieldParser.parseField("A67");
     }
 
     @Test
     public void validInput_onlyRange_valueMatch() {
-        valueSet = new TreeSet<>();
+        valueList = new ArrayList<>();
         for(int i = fieldParser.getMin(); i <= fieldParser.getMax(); i++)
-            valueSet.add(i);
-        assertEquals(valueSet, fieldParser.parseField("0-6"));
+            valueList.add(i);
+        assertEquals(valueList, fieldParser.parseField("0-23"));
     }
 
     @Test
     public void validInput_onlyStep_valueMatch() {
-        valueSet = new TreeSet<>(Arrays.asList(1, 3, 5));
-        assertEquals(valueSet, fieldParser.parseField("1/2"));
+        valueList = Arrays.asList(1, 11, 21);
+        assertEquals(valueList, fieldParser.parseField("1/10"));
     }
 
     @Test
     public void validInput_onlyStepWithAsterisk_valueMatch() {
-        valueSet = new TreeSet<>(Arrays.asList(0, 3, 6));
-        assertEquals(valueSet, fieldParser.parseField("*/3"));
+        valueList = Arrays.asList(0, 20);
+        assertEquals(valueList, fieldParser.parseField("*/20"));
     }
 
     @Test
     public void validInput_onlyList_valueMatch() {
-        valueSet = new TreeSet<>(Arrays.asList(1, 4, 5));
-        assertEquals(valueSet, fieldParser.parseField("1,4,5"));
+        valueList = Arrays.asList(0, 4, 23);
+        assertEquals(valueList, fieldParser.parseField("0,4,23"));
     }
 
     @Test
     public void validInput_listRangeAndStep_valueMatch() {
-        valueSet = new TreeSet<>(Arrays.asList(0, 1, 2, 3, 5, 6));
-        assertEquals(valueSet, fieldParser.parseField("0,1,2-3,1/10,5-5,1/5"));
+        valueList = Arrays.asList(0, 4, 10, 11, 12, 0, 10, 20, 0, 1, 2, 3, 4, 20);
+        assertEquals(valueList, fieldParser.parseField("0,4,10-12,0/10,0-4,20/20"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void invalidInput_extraAsterisk_shouldThrowException() {
-        fieldParser.parseField("*,1,2-3,1/10,5-5,*/5");
+        fieldParser.parseField("*,4,10-12,*/10,20-23,20/20");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void invalidInput_withAsteriskInListField_shouldThrowException() {
-        fieldParser.parseField("*,1,2-3,1/10,5-5,1/5");
+        fieldParser.parseField("*,4,10-12,0/10,20-23,20/20");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void invalidInput_invalidLessThanMinInRangeField_shouldThrowException() {
-        fieldParser.parseField("-1-6");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void invalidInput_invalidMoreThanMaxInRangeField_shouldThrowException() {
-        fieldParser.parseField("0-60");
+        fieldParser.parseField("-1-20");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -112,23 +101,18 @@ public class DayOfWeekFieldParserTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void invalidInput_invalidMoreThanMaxInStepField_shouldThrowException() {
-        fieldParser.parseField("14/1");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     public void invalidInput_divideByZeroInStepField_shouldThrowException() {
-        fieldParser.parseField("2/0");
+        fieldParser.parseField("3/0");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void invalidInput_negativeStepInStepField_shouldThrowException() {
-        fieldParser.parseField("2/-1");
+        fieldParser.parseField("3/-1");
     }
 
     @Test
     public void validInput_moreThanMaxStepStepInStepField_shouldThrowException() {
-        valueSet = new TreeSet<>(Collections.singletonList(5));
-        assertEquals(valueSet, fieldParser.parseField("5/100"));
+        valueList = Arrays.asList(5);
+        assertEquals(valueList, fieldParser.parseField("5/100"));
     }
 }
